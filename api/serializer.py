@@ -1,4 +1,4 @@
-from api.models import  User, Profile
+from api.models import  User, Profile, Income
 
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -49,3 +49,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
             
         return user
+    
+class IncomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Income
+        fields = ['id', 'amount', 'category', 'description', 'date_received', 'user']
+        read_only_fields = ['id', 'user']
+        
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError('Amount must be greater than zero')
+        return value
+        

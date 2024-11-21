@@ -4,6 +4,7 @@ from django.db import models
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db.models.signals import post_save
+from django.utils.timezone import now
 
 class UserManager(BaseUserManager):
     def create_user(self, email, username, password=None):
@@ -80,3 +81,21 @@ def save_user_profile(sender, instance,**kwargs):
     
 post_save.connect(create_user_profile, sender=User)
 post_save.connect(save_user_profile, sender=User)
+
+class Income(models.Model):
+    CATEGORY_CHOICES = [
+        ('SALARY', 'Salary'),
+        ('ALLOWANCE', 'Allowance'),
+        ('GIFT', 'Gift'),
+        ('OTHER', 'Other'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='OTHER')
+    date_received = models.DateTimeField()
+    description = models.CharField(max_length=200)
+    created_at = models.DateTimeField(default=now) 
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.amount}"
+    
