@@ -4,7 +4,7 @@ import useAxios from "../../utils/useAxios";
 import AuthContext from "../../context/AuthContext";
 const swal = require('sweetalert2');
 
-const AddIncomePage = () => {
+const AddBillPage = () => {
     const { authTokens } = useContext(AuthContext);
     const api = useAxios();
     const navigate = useNavigate();
@@ -12,16 +12,8 @@ const AddIncomePage = () => {
     const [formData, setFormData] = useState({
         amount: "",
         description: "",
-        date_received: "",
-        category: "",
+        due_date: "",
     });
-
-    const categories = [
-        { value: "SALARY", label: "Salary" },
-        { value: "ALLOWANCE", label: "Allowance" },
-        { value: "GIFT", label: "Gift" },
-        { value: "OTHER", label: "Other" },
-    ];
 
     useEffect(() => {
         if (!authTokens) {
@@ -46,7 +38,7 @@ const AddIncomePage = () => {
         e.preventDefault();
         setError("");
 
-        if (!formData.amount || !formData.date_received) {
+        if (!formData.amount || !formData.due_date) {
             setError("Amount and date are required fields");
             return;
         }
@@ -57,20 +49,20 @@ const AddIncomePage = () => {
         };
 
         try {
-            const response = await api.post("/income/", formattedData, {
+            const response = await api.post("/bills/", formattedData, {
                 headers: {
                     Authorization: `Bearer ${authTokens.access}`,
                 },
             });
-            console.log("Income added successfully:", response.data);
+            console.log("Bill added successfully:", response.data);
             swal.fire({
                 title: 'Success!',
-                text: 'Income added successfully',
+                text: 'Bill added successfully',
                 icon: 'success',
                 timer: 2000,
                 showConfirmButton: false
             });
-            navigate('/dashboard');
+            navigate('/');
         } catch (error) {
             if (error.response?.status === 401) {
                 navigate('/login');
@@ -78,7 +70,7 @@ const AddIncomePage = () => {
                 const errorMessage = error.response?.data?.detail ||
                     error.response?.data?.message ||
                     Object.values(error.response?.data || {}).flat().join(', ') ||
-                    "Failed to add income. Please try again.";
+                    "Failed to add bills. Please try again.";
                 setError(errorMessage);
                 swal.fire({
                     title: 'Error!',
@@ -99,7 +91,7 @@ const AddIncomePage = () => {
                 </div>
             )}
             <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <div className="h2">Add Income</div>
+                <div className="h2">Add Monthly Bills</div>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -114,22 +106,6 @@ const AddIncomePage = () => {
                     />
                 </div>
                 <div>
-                    <select
-                        name="category"
-                        value={formData.category}
-                        onChange={handleChange}
-                        className="w-full p-2 border rounded"
-                        required
-                    >
-                        <option value="">Select Category</option>
-                        {categories.map((category) => (
-                            <option key={category.value} value={category.value}>
-                                {category.label}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div>
                     <input
                         type="text"
                         name="description"
@@ -142,8 +118,8 @@ const AddIncomePage = () => {
                 <div>
                     <input
                         type="date"
-                        name="date_received"
-                        value={formData.date_received}
+                        name="due_date"
+                        value={formData.due_date}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                         required
@@ -151,13 +127,12 @@ const AddIncomePage = () => {
                 </div>
                 <button
                     type="submit"
-                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-                >
-                    Add Income
+                    className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">
+                    Add Bill
                 </button>
             </form>
         </div>
     );
 };
 
-export default AddIncomePage;
+export default AddBillPage;

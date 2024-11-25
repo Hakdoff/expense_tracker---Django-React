@@ -4,23 +4,21 @@ import useAxios from "../../utils/useAxios";
 import AuthContext from "../../context/AuthContext";
 const swal = require('sweetalert2');
 
-const AddIncomePage = () => {
+const AddSavingsPage = () => {
     const { authTokens } = useContext(AuthContext);
     const api = useAxios();
     const navigate = useNavigate();
     const [error, setError] = useState("");
     const [formData, setFormData] = useState({
         amount: "",
-        description: "",
-        date_received: "",
+        date_saved: "",
         category: "",
     });
 
     const categories = [
-        { value: "SALARY", label: "Salary" },
-        { value: "ALLOWANCE", label: "Allowance" },
-        { value: "GIFT", label: "Gift" },
-        { value: "OTHER", label: "Other" },
+        { value: "SAVING", label: "Saving" },
+        { value: "EMERGENCY FUND", label: "Emergency Fund" },
+        { value: "EXTRA", label: "Extra" },
     ];
 
     useEffect(() => {
@@ -57,20 +55,20 @@ const AddIncomePage = () => {
         };
 
         try {
-            const response = await api.post("/income/", formattedData, {
+            const response = await api.post("/savings/", formattedData, {
                 headers: {
                     Authorization: `Bearer ${authTokens.access}`,
                 },
             });
-            console.log("Income added successfully:", response.data);
+            console.log("Savings added successfully:", response.data);
             swal.fire({
                 title: 'Success!',
-                text: 'Income added successfully',
+                text: 'Savings added successfully',
                 icon: 'success',
                 timer: 2000,
                 showConfirmButton: false
             });
-            navigate('/dashboard');
+            navigate('/savings');
         } catch (error) {
             if (error.response?.status === 401) {
                 navigate('/login');
@@ -78,7 +76,7 @@ const AddIncomePage = () => {
                 const errorMessage = error.response?.data?.detail ||
                     error.response?.data?.message ||
                     Object.values(error.response?.data || {}).flat().join(', ') ||
-                    "Failed to add income. Please try again.";
+                    "Failed to add savings. Please try again.";
                 setError(errorMessage);
                 swal.fire({
                     title: 'Error!',
@@ -99,7 +97,7 @@ const AddIncomePage = () => {
                 </div>
             )}
             <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <div className="h2">Add Income</div>
+                <div className="h2">Add Savings</div>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -131,19 +129,9 @@ const AddIncomePage = () => {
                 </div>
                 <div>
                     <input
-                        type="text"
-                        name="description"
-                        placeholder="Description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        className="w-full p-2 border rounded"
-                    />
-                </div>
-                <div>
-                    <input
                         type="date"
-                        name="date_received"
-                        value={formData.date_received}
+                        name="date_saved"
+                        value={formData.date_saved}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                         required
@@ -153,11 +141,11 @@ const AddIncomePage = () => {
                     type="submit"
                     className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                 >
-                    Add Income
+                    Add Savings
                 </button>
             </form>
         </div>
     );
 };
 
-export default AddIncomePage;
+export default AddSavingsPage;

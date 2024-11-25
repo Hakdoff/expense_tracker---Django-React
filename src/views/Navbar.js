@@ -4,23 +4,16 @@ import useAxios from "../utils/useAxios"
 import { jwtDecode } from 'jwt-decode'
 import '../../src/index.css'
 import AuthContext from "../context/AuthContext";
-
 const swal = require('sweetalert2');
 
 function NavBar() {
-  const api = useAxios();
   const token = localStorage.getItem("authTokens");
-  const [incomes, setIncomes] = useState([]);
   const [error, setError] = useState("");
   const { authTokens } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation()
   const { user, logoutUser } = useContext(AuthContext)
-
   const isActive = (path) => location.pathname === path;
-
-
-
 
   if (token) {
     const decode = jwtDecode(token)
@@ -31,39 +24,12 @@ function NavBar() {
 
   }
 
-
   useEffect(() => {
     if (!authTokens) {
       navigate('/login');
       return;
     }
-    const fetchIncomes = async () => {
-
-
-
-      try {
-        const response = await api.get("/income/");
-        setIncomes(response.data);
-      } catch (error) {
-        setError("Failed to fetch incomes.");
-        swal.fire({
-          title: 'Error!',
-          text: error.response?.data?.detail || 'Failed to fetch incomes.',
-          icon: 'error',
-          timer: 3000,
-          showConfirmButton: false
-        });
-        if (error.response.status === 401) {
-          navigate('/login');
-        }
-      }
-    };
-
-    fetchIncomes();
   }, [authTokens, navigate]);
-
-  const totalIncome = incomes.reduce((sum, income) => sum + (income.amount || 0), 0);
-
 
   if (error) {
     return (
@@ -74,7 +40,6 @@ function NavBar() {
       </div>
     )
   }
-
 
   return (
     <>
@@ -108,23 +73,23 @@ function NavBar() {
                 </a>
               </li>
               <li className="py-2">
-                <a className={`nav-link rounded-full text-start cursor-pointer hover:bg-[#6C48C5] w-full ${isActive("/expenses") ? "bg-[#3B1E54]" : ""}`} >
+                <a className={`nav-link rounded-full text-start cursor-pointer hover:bg-[#6C48C5] w-full ${isActive("/expenses") ? "bg-[#3B1E54]" : ""}`} onClick={() => navigate(`/expenses`)}>
                   Expenses
                 </a>
               </li>
               <li className="py-2">
-                <a className={`nav-link rounded-full text-start cursor-pointer hover:bg-[#6C48C5] w-full ${isActive("/savings") ? "bg-[#3B1E54]" : ""}`} >
+                <a className={`nav-link rounded-full text-start cursor-pointer hover:bg-[#6C48C5] w-full ${isActive("/savings") ? "bg-[#3B1E54]" : ""}`} onClick={() => navigate(`/savings`)}>
                   Savings
                 </a>
               </li>
               <li className="py-2">
-                <a className={`nav-link rounded-full text-start cursor-pointer hover:bg-[#6C48C5] w-full ${isActive("/bills") ? "bg-[#3B1E54]" : ""}`} onClick={() => navigate(`/income`)}>
+                <a className={`nav-link rounded-full text-start cursor-pointer hover:bg-[#6C48C5] w-full ${isActive("/bills") ? "bg-[#3B1E54]" : ""}`} onClick={() => navigate(`/bills`)}>
                   Bills
                 </a>
               </li>
               <li className="py-2">
-                <a className={`nav-link rounded-full text-start cursor-pointer hover:bg-[#6C48C5] w-full ${isActive("/needs") ? "bg-[#3B1E54]" : ""}`} >
-                  Needs
+                <a className={`nav-link rounded-full text-start cursor-pointer hover:bg-[#6C48C5] w-full ${isActive("/wishlist") ? "bg-[#3B1E54]" : ""}`} onClick={() => navigate(`/wishlist`)}>
+                  Wishlist
                 </a>
               </li>
               {token !== null &&

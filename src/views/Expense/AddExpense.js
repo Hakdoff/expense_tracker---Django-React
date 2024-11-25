@@ -4,7 +4,7 @@ import useAxios from "../../utils/useAxios";
 import AuthContext from "../../context/AuthContext";
 const swal = require('sweetalert2');
 
-const AddIncomePage = () => {
+const AddExpensePage = () => {
     const { authTokens } = useContext(AuthContext);
     const api = useAxios();
     const navigate = useNavigate();
@@ -12,14 +12,24 @@ const AddIncomePage = () => {
     const [formData, setFormData] = useState({
         amount: "",
         description: "",
-        date_received: "",
+        date_spended: "",
         category: "",
     });
 
     const categories = [
-        { value: "SALARY", label: "Salary" },
-        { value: "ALLOWANCE", label: "Allowance" },
-        { value: "GIFT", label: "Gift" },
+        { value: "FOOD", label: "Food" },
+        { value: "TRANSPORTATION", label: "Transportation" },
+        { value: "CLOTHING", label: "Clothing" },
+        { value: "SHOPPING", label: "Shopping" },
+        { value: "BILLS", label: "Bills" },
+        { value: "INSURANCE", label: "Insurance" },
+        { value: "HEALTHCARE", label: "Healthcare" },
+        { value: "SKINCARE", label: "Skincare" },
+        { value: "UTILITIES", label: "Utilities" },
+        { value: "RENT", label: "Rent" },
+        { value: "GYM", label: "Gym" },
+        { value: "GROCERY", label: "Grocery" },
+        { value: "FAMILY", label: "Family" },
         { value: "OTHER", label: "Other" },
     ];
 
@@ -46,31 +56,31 @@ const AddIncomePage = () => {
         e.preventDefault();
         setError("");
 
-        if (!formData.amount || !formData.date_received) {
+        if (!formData.amount || !formData.date_spended) {
             setError("Amount and date are required fields");
             return;
         }
 
         const formattedData = {
             ...formData,
-            date_received: new Date(formData.date_received).toISOString(),
+            date_spended: new Date(formData.date_spended).toISOString(),
         };
 
         try {
-            const response = await api.post("/income/", formattedData, {
+            const response = await api.post("/expense/", formattedData, {
                 headers: {
                     Authorization: `Bearer ${authTokens.access}`,
                 },
             });
-            console.log("Income added successfully:", response.data);
+            console.log("Expense added successfully:", response.data);
             swal.fire({
                 title: 'Success!',
-                text: 'Income added successfully',
+                text: 'Expense added successfully',
                 icon: 'success',
                 timer: 2000,
                 showConfirmButton: false
             });
-            navigate('/dashboard');
+            navigate('/expenses');
         } catch (error) {
             if (error.response?.status === 401) {
                 navigate('/login');
@@ -78,7 +88,7 @@ const AddIncomePage = () => {
                 const errorMessage = error.response?.data?.detail ||
                     error.response?.data?.message ||
                     Object.values(error.response?.data || {}).flat().join(', ') ||
-                    "Failed to add income. Please try again.";
+                    "Failed to add expense. Please try again.";
                 setError(errorMessage);
                 swal.fire({
                     title: 'Error!',
@@ -99,7 +109,7 @@ const AddIncomePage = () => {
                 </div>
             )}
             <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
-                <div className="h2">Add Income</div>
+                <div className="h2">Add Epenses</div>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
@@ -142,8 +152,8 @@ const AddIncomePage = () => {
                 <div>
                     <input
                         type="date"
-                        name="date_received"
-                        value={formData.date_received}
+                        name="date_spended"
+                        value={formData.date_spended}
                         onChange={handleChange}
                         className="w-full p-2 border rounded"
                         required
@@ -153,11 +163,11 @@ const AddIncomePage = () => {
                     type="submit"
                     className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
                 >
-                    Add Income
+                    Add Expense
                 </button>
             </form>
         </div>
     );
 };
 
-export default AddIncomePage;
+export default AddExpensePage;
