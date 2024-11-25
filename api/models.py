@@ -99,3 +99,80 @@ class Income(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.amount}"
     
+class Expense(models.Model):
+    CATEGORY_CHOICES = [
+        ('FOOD', 'Food'),
+        ('TRANSPORTATION', 'Transportation'),
+        ('CLOTHING', 'Clothing'),
+        ('SHOPPING', 'Shopping'),
+        ('BILLS', 'Bills'),
+        ('INSURANCE', 'Insurance'),
+        ('HEALTHCARE', 'Healthcare'),
+        ('UTILITIES', 'Utilities'),
+        ('RENT', 'Rent'),
+        ('SKINCARE', 'Skincare'),
+        ('GYM', 'Gym'),
+        ('GROCERY', 'Grocery'),
+        ('FAMILY', 'Family'),
+        ('OTHER', 'Other'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='OTHER')
+    date_spended = models.DateTimeField()
+    description = models.CharField(max_length=200)
+    created_at = models.DateTimeField(default=now) 
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.amount}"
+    
+class Saving(models.Model):
+    CATEGORY_CHOICES = [
+        ('SAVING', 'Saving'),
+        ('EMERGENCY FUND', 'Emergency Fund'),
+        ('EXTRA', 'Extra'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='OTHER')
+    amount = models.IntegerField()
+    date_saved = models.DateTimeField()
+    created_at = models.DateTimeField(default=now) 
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.amount}"
+    
+class Bill(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    due_date = models.DateTimeField()
+    item = models.CharField(max_length=200)
+    created_at = models.DateTimeField(default=now) 
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.amount} - {self.due_date}"
+    
+class Wishlist(models.Model):
+    CATEGORY_CHOICES = [
+        ('FOOD', 'Food'),
+        ('TRANSPORTATION', 'Transportation'),
+        ('CLOTHING', 'Clothing'),
+        ('SHOPPING', 'Shopping'),
+        ('HEALTHCARE', 'Healthcare'),
+        ('SKINCARE', 'Skincare'),
+        ('GYM', 'Gym'),
+        ('GROCERY', 'Grocery'),
+        ('FAMILY', 'Family'),
+        ('OTHER', 'Other'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='OTHER')
+    item = models.CharField(max_length=200)
+    price = models.IntegerField()
+    description = models.CharField(max_length=200)
+    is_bought = models.BooleanField(default=False)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.item} - {self.price}"
+    
+
+    

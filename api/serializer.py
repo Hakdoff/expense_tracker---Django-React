@@ -1,4 +1,4 @@
-from api.models import  User, Profile, Income
+from api.models import  User, Expense, Income, Saving, Wishlist, Bill
 
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -60,4 +60,47 @@ class IncomeSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError('Amount must be greater than zero')
         return value
+    
+class ExpenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Expense
+        fields = ['id', 'amount', 'category', 'description', 'date_spended', 'user']
+        read_only_fields = ['id', 'user']
         
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError('Amount must be greater than zero')
+        return value
+        
+class SavingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Saving
+        fields = ['id', 'amount', 'category', 'date_saved', 'user']
+        read_only_fields = ['id', 'user']
+        
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError('Amount must be greater than zero')
+        return value
+    
+class BillSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bill
+        fields = ['id', 'amount', 'due_date', 'item', 'user']
+        read_only_fields = ['id', 'user']
+        
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError('Amount must be greater than zero')
+        return value
+    
+class WishlistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'price', 'category', 'item', 'description', 'is_bought', 'user']
+        read_only_fields = ['id', 'user']
+        
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError('Price must be greater than zero')
+        return value
