@@ -1,21 +1,14 @@
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import useAxios from "../utils/useAxios"
-import { jwtDecode } from 'jwt-decode'
-import '../../src/index.css'
+import useAxios from "../utils/useAxios";
+import { jwtDecode } from "jwt-decode";
+import "../../src/index.css";
 import AuthContext from "../context/AuthContext";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  Title,
-} from 'chart.js';
-import { Pie } from 'react-chartjs-2';
-import BillsPage from './Bills/FetchBills';
-import WishlistPage from './Wishlist/FetchWishlist';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
+import BillsPage from "./Bills/FetchBills";
+import WishlistPage from "./Wishlist/FetchWishlist";
 
-const swal = require('sweetalert2');
+const swal = require("sweetalert2");
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
@@ -28,21 +21,19 @@ function Dashboard() {
   const { authTokens } = useContext(AuthContext);
   const navigate = useNavigate();
   const [savings, setSavings] = useState([]);
-
+  const [combinedTransactions, setCombinedTransactions] = useState([]);
 
   if (token) {
-    const decode = jwtDecode(token)
-    var user_id = decode.user_id
-    var username = decode.username
-    var full_name = decode.full_name
-    var image = decode.image
-
+    const decode = jwtDecode(token);
+    var user_id = decode.user_id;
+    var username = decode.username;
+    var full_name = decode.full_name;
+    var image = decode.image;
   }
-
 
   useEffect(() => {
     if (!authTokens) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
     const fetchIncomes = async () => {
@@ -52,14 +43,14 @@ function Dashboard() {
       } catch (error) {
         setError("Failed to fetch incomes.");
         swal.fire({
-          title: 'Error!',
-          text: error.response?.data?.detail || 'Failed to fetch incomes.',
-          icon: 'error',
+          title: "Error!",
+          text: error.response?.data?.detail || "Failed to fetch incomes.",
+          icon: "error",
           timer: 3000,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
         if (error.response.status === 401) {
-          navigate('/login');
+          navigate("/login");
         }
       }
     };
@@ -70,49 +61,77 @@ function Dashboard() {
       } catch (error) {
         setError("Failed to fetch expenses.");
         swal.fire({
-          title: 'Error!',
-          text: error.response?.data?.detail || 'Failed to fetch expenses.',
-          icon: 'error',
+          title: "Error!",
+          text: error.response?.data?.detail || "Failed to fetch expenses.",
+          icon: "error",
           timer: 3000,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
         if (error.response.status === 401) {
-          navigate('/login');
+          navigate("/login");
         }
       }
     };
 
     const fetchSavings = async () => {
       try {
-          const response = await api.get("/savings/");
-          setSavings(response.data);
+        const response = await api.get("/savings/");
+        setSavings(response.data);
       } catch (error) {
-          setError("Failed to fetch savings.");
-          swal.fire({
-              title: 'Error!',
-              text: error.response?.data?.detail || 'Failed to fetch savings.',
-              icon: 'error',
-              timer: 3000,
-              showConfirmButton: false
-          });
-          if (error.response.status === 401) {
-              navigate('/login');
-          }
+        setError("Failed to fetch savings.");
+        swal.fire({
+          title: "Error!",
+          text: error.response?.data?.detail || "Failed to fetch savings.",
+          icon: "error",
+          timer: 3000,
+          showConfirmButton: false,
+        });
+        if (error.response.status === 401) {
+          navigate("/login");
+        }
       }
-  };
+    };
 
-  if (!authTokens) {
-      navigate('/login');
-  }
-
-    fetchIncomes();
     fetchSavings();
     fetchExpenses();
+    fetchIncomes();
   }, [authTokens, navigate]);
 
-  const totalSavings = savings.reduce((sum, saving) => sum + (saving.amount || 0), 0);
-  const totalIncome = incomes.reduce((sum, income) => sum + (income.amount || 0), 0);
-  const totalExpenses = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+  useEffect(() => {
+    const combineAndSortTransactions = () => {
+      const allTransactions = [
+        ...incomes.map((income) => ({
+          ...income,
+          type: "Income",
+          date: new Date(income.date_received),
+        })),
+        ...expenses.map((expense) => ({
+          ...expense,
+          type: "Expense",
+          date: new Date(expense.date_spended),
+        })),
+      ];
+
+      allTransactions.sort((a, b) => b.date - a.date);
+      console.log("Combined Transactions:", allTransactions); // Debugging line
+      setCombinedTransactions(allTransactions);
+    };
+
+    combineAndSortTransactions();
+  }, [incomes, expenses]);
+
+  const totalSavings = savings.reduce(
+    (sum, saving) => sum + (saving.amount || 0),
+    0
+  );
+  const totalIncome = incomes.reduce(
+    (sum, income) => sum + (income.amount || 0),
+    0
+  );
+  const totalExpenses = expenses.reduce(
+    (sum, expense) => sum + (expense.amount || 0),
+    0
+  );
 
   if (error) {
     return (
@@ -121,7 +140,7 @@ function Dashboard() {
           {error}
         </div>
       </div>
-    )
+    );
   }
 
   const groupByMonth = (data) => {
@@ -134,94 +153,122 @@ function Dashboard() {
     return grouped;
   };
 
-  const monthlyIncome = incomes.length ? groupByMonth(incomes) : Array(12).fill(0);
-  const monthlyExpenses = expenses.length ? groupByMonth(expenses) : Array(12).fill(0);
-
-
-  const labels = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ];
-
-  const chartData = {
-    labels: labels,
-    datasets: [
-      {
-        label: "Income",
-        data: monthlyIncome,
-        backgroundColor: "rgba(54, 162, 235, 0.6)",
-        borderColor: "rgba(54, 162, 235, 1)",
-        borderWidth: 1,
-      },
-      {
-        label: "Expenses",
-        data: monthlyExpenses,
-        backgroundColor: "rgba(255, 99, 132, 0.6)",
-        borderColor: "rgba(255, 99, 132, 1)",
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      title: {
-        display: true,
-        text: "Monthly Income and Expenses",
-      },
-    },
-  };
+  const monthlyIncome = incomes.length
+    ? groupByMonth(incomes)
+    : Array(12).fill(0);
+  const monthlyExpenses = expenses.length
+    ? groupByMonth(expenses)
+    : Array(12).fill(0);
 
   return (
     <>
       <div className="  bg-white">
-        <div className='m-4'>
+        <div className="m-4">
           <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
             <div className="h2">Dashboard</div>
           </div>
           <div className="m-10">
-            <div className='grid grid-cols-3  gap-10'>
-              <div className='border border-sky-500'>
-                <div className='flex flex-col text-center gap-4 p-4'>
-                  <div className='text-2xl text-blue-400'>${totalIncome.toFixed(2)}</div>
+            <div className="grid grid-cols-3  gap-10">
+              <div className="border border-sky-500">
+                <div className="flex flex-col text-center gap-4 p-4">
+                  <div className="text-2xl text-blue-400">
+                    ${totalIncome.toFixed(2)}
+                  </div>
                   <div>Income</div>
                 </div>
               </div>
-              <div className='border border-sky-500'>
-                <div className='flex flex-col text-center gap-4 p-4'>
-                  <div className='text-2xl text-purple-400'>${totalExpenses.toFixed(2)}</div>
+              <div className="border border-sky-500">
+                <div className="flex flex-col text-center gap-4 p-4">
+                  <div className="text-2xl text-purple-400">
+                    ${totalExpenses.toFixed(2)}
+                  </div>
                   <div>Expenses</div>
                 </div>
               </div>
-              <div className='border border-sky-500 '>
-                <div className='flex flex-col text-center gap-4 p-4 '>
-                  <div className='text-2xl text-pink-400'>${totalSavings.toFixed(2)}</div>
+              <div className="border border-sky-500 ">
+                <div className="flex flex-col text-center gap-4 p-4 ">
+                  <div className="text-2xl text-pink-400">
+                    ${totalSavings.toFixed(2)}
+                  </div>
                   <div>Savings</div>
                 </div>
               </div>
             </div>
           </div>
-          <div className='flex m-3 md:flex-col'>
-            <div className='border m-4' >
+          <div className="flex m-3 md:flex-col xl:flex-row">
+            <div className="border m-4 xl:w-1/2">
               <BillsPage></BillsPage>
             </div>
-            <div className='border m-4' >
-              <WishlistPage></WishlistPage>
-            </div>
           </div>
-
-
+          <div>
+            Transactions
+            <table className="table-auto w-full">
+              <thead>
+                <tr>
+                  <th className="border w-1/4 border-gray-300 px-4 py-2">
+                    Date Spended
+                  </th>
+                  <th className="border w-1/5 border-gray-300 px-4 py-2">
+                    Type
+                  </th>
+                  <th className="border w-1/4 border-gray-300 px-4 py-2">
+                    Category
+                  </th>
+                  <th className="border w-1/2 border-gray-300 px-4 py-2">
+                    Description
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {combinedTransactions.map((transaction, index) => (
+                  <tr key={transaction.id}>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {transaction?.type &&
+                        new Date(
+                          transaction.type === "Expense"
+                            ? transaction.date_spended
+                            : transaction.date_received
+                        ).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                    </td>
+                    <td
+                      className={`border border-gray-300 px-4 py-2 ${
+                        transaction.type === "Income"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {transaction.type}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {transaction.category}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {transaction.description || "N/A"}
+                    </td>
+                    <td
+                      className={`border border-gray-300 px-4 py-2 font-medium ${
+                        transaction.type === "Income"
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {transaction.type === "Income" ? "+" : "-"}$
+                      {transaction.amount.toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-
     </>
-
-
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;
