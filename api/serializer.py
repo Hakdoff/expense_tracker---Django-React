@@ -86,7 +86,7 @@ class SavingSerializer(serializers.ModelSerializer):
 class BillSerializer(serializers.ModelSerializer):
     class Meta:
         model = Bill
-        fields = ['id', 'amount', 'due_date', 'item', 'user']
+        fields = ['id', 'amount', 'due_date', 'item', 'user', 'category']
         read_only_fields = ['id', 'user']
         
     def validate_amount(self, value):
@@ -97,7 +97,7 @@ class BillSerializer(serializers.ModelSerializer):
 class WishlistSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wishlist
-        fields = ['id', 'price', 'category', 'item', 'description', 'is_bought', 'user']
+        fields = ['id', 'price', 'category', 'item', 'is_bought', 'image', 'user']
         read_only_fields = ['id', 'user']
         
     def validate_amount(self, value):

@@ -15,13 +15,13 @@ class ExpenseAdmin(admin.ModelAdmin):
     list_display = ['user', 'amount', 'date_spended']
     
 class WishlistAdmin(admin.ModelAdmin):
-    list_display = ['user', 'price', ]
+    list_display = ['user', 'price', 'item' ]
     
 class SavingAdmin(admin.ModelAdmin):
     list_display = ['user', 'amount', ]
     
 class BillAdmin(admin.ModelAdmin):
-    list_display = ['user', 'amount', 'due_date']
+    list_display = ['user', 'amount', 'due_date', 'item', 'category']
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Profile, ProfileAdmin)

@@ -142,9 +142,21 @@ class Saving(models.Model):
         return f"{self.user.username} - {self.amount}"
     
 class Bill(models.Model):
+    CATEGORY_CHOICES = [
+        ('GYM', 'Gym'),
+        ('LIFE INSURANCE', 'Life Insurance'),
+        ('ALLOWANCE', 'Allowance'),
+        ('BAHAY', 'Bahay'),
+        ('APARTMENT', 'Apartment'),
+        ('EMERGENCY FUND', 'Emergency Fund'),
+        ('SAVINGS', 'Savings'),
+        ('EXTRA', 'Extra'),
+    ]
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     amount = models.IntegerField()
-    due_date = models.DateTimeField()
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='OTHER')
+    due_date = models.CharField(max_length=100, default='OTHER')
     item = models.CharField(max_length=200)
     created_at = models.DateTimeField(default=now) 
     
@@ -154,21 +166,21 @@ class Bill(models.Model):
 class Wishlist(models.Model):
     CATEGORY_CHOICES = [
         ('FOOD', 'Food'),
-        ('TRANSPORTATION', 'Transportation'),
+        ('MAKE UP', 'Makeup'),
         ('CLOTHING', 'Clothing'),
         ('SHOPPING', 'Shopping'),
         ('HEALTHCARE', 'Healthcare'),
         ('SKINCARE', 'Skincare'),
-        ('GYM', 'Gym'),
+        ('BAG', 'Bag'),
         ('GROCERY', 'Grocery'),
         ('FAMILY', 'Family'),
         ('OTHER', 'Other'),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    image = models.ImageField(default="default.jpg", upload_to="wishlist_images/")
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='OTHER')
     item = models.CharField(max_length=200)
     price = models.IntegerField()
-    description = models.CharField(max_length=200)
     is_bought = models.BooleanField(default=False)
     
     def __str__(self):
